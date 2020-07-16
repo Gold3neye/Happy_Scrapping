@@ -1,76 +1,41 @@
 require 'rubygems'
 require 'nokogiri'
 require 'open-uri'
-require 'pry'
 
-def get_deputy_email(uri)
-  page = Nokogiri::HTML(URI.open(uri))
-  page.css('.deputes-liste-attributs > dd:nth-child(8) > ul:nth-child(1) > li:nth-child(2) > a:nth-child(1)').each do |node|
-    return node.content
-  end
-end
+def connect
+  page = Nokogiri::HTML(URI.open("http://www2.assemblee-nationale.fr/deputes/liste/alphabetique"))
 
-def array_get_deputy_urls
-  page = Nokogiri::HTML(URI.open('http://www2.assemblee-nationale.fr/deputes/liste/alphabetique'))
-  urls = []
+  deputes = Array.new(0)
 
-  page.css('div.col-container > ul > li > a').each do |node|
-    urls.push('http://www2.assemblee-nationale.fr' + node['href'])
-  end
+  page.css('//div[@id=deputes-list]//a').take(20).each.with_index do |link, index|
+    if index > 0
+      complete_url = "http://www2.assemblee-nationale.fr/#{link["href"].to_s}"
+      depute = Nokogiri::HTML(URI.open(complete_url))
 
-  urls
-end
+      begin
+        full_name = depute.css('.titre-bandeau-bleu h1').text.to_s.split(" ")
+        first_name = full_name[1].to_s
+        last_name = full_name[2].to_s
+      rescue => e
+        first_name = "Non défini"
+        last_name = "Non défini"
+      end
 
-def array_get_deputy_name
-  page = Nokogiri::HTML(URI.open('http://www2.assemblee-nationale.fr/deputes/liste/alphabetique'))
-  name = []
+      begin
+        email = depute.css("a[href^=mailto]")[1].text.to_s
+      rescue => e
+        email = "Non défini"
+      end
 
-  page.css('div.col-container > ul > li > a').each do |node|
-    name.push(node.content)
-  end
-
-  name
-end
-
-def give_first_name(full_name)
-  full_name.split(' ')[1]
-end
-
-def give_last_name(full_name)
-  full_name.split(' ')[2]
-end
-
-def give_last_name_first_letter(full_name)
-  give_last_name(full_name)[0].downcase
-end
-
-def perform
-  begin
-    # Init hash containing all deputys' data
-    deputy_data_array = {}
-
-    # Get an array of deputys' names
-    deputy_name_array = array_get_deputy_name
-
-    # Get an array of URLs in order to get deputys' emails
-    array_of_urls = array_get_deputy_urls
-
-    # Get a deputy email
-    i = 0
-    array_of_urls.each do |uri|
-      letter = give_last_name_first_letter(deputy_name_array[i])
-
-      puts deputy_data_array[letter] = {
-        'first_name' => give_first_name(deputy_name_array[i]),
-        'last_name' => give_last_name(deputy_name_array[i]),
-        'email' => get_deputy_email(uri)
+      deputes[index] = {
+        "first_name" => first_name,
+        "last_name" => last_name,
+        "email" => email
       }
-      i += 1
-    end
-  rescue RuntimeError
-    return 'null'
-  end
-end
 
-# Run the program
-perform
+      puts "Le député #{first_name} #{last_name} peut être contacté via l'email : #{email}"
+    end
+  end
+
+  return deputes
+end
