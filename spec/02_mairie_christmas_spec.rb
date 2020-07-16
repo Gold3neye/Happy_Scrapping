@@ -1,39 +1,22 @@
-require_relative '../lib/02_mairie_christmas'
+require_relative '../lib/02_mairie_christmas.rb'
 
-uri_array = ['http://annuaire-des-mairies.com/95/aincourt.html']
-
-describe "the array_get_townhall_email function" do
-  it "should be an array" do
-    expect(array_get_townhall_email(array_get_townhall_urls)).to be_instance_of(Array)
-  end
-  it "shouldn't be nil" do
-    expect(array_get_townhall_email(array_get_townhall_urls)).not_to be_nil
-  end
-  it "shouldn't be empty" do
-    expect(array_get_townhall_email(array_get_townhall_urls)).not_to be_empty
-  end
+describe "the get_townhall_email method" do
+    it "should return a string" do
+        expect(get_townhall_email("https://www.annuaire-des-mairies.com/95/avernes.html").class).to eq(String)
+    end
+    it "should return an email" do
+        expect(get_townhall_email("https://www.annuaire-des-mairies.com/95/avernes.html").include?('@')).to eq(true)
+    end
 end
 
-describe "the array_get_deputy_email function" do
-  it "should be an array" do
-    expect(array_get_townhall_urls).to be_instance_of(Array)
-  end
-  it "shouldn't be nil" do
-    expect(array_get_townhall_urls).not_to be_nil
-  end
-  it "shouldn't be empty" do
-    expect(array_get_townhall_urls).not_to be_empty
-  end
-end
-
-describe "the get townhall name function" do
-  it "should be an Array" do
-    expect(array_get_townhall_name).to be_instance_of(Array)
-  end
-  it "shouldn't be nil" do
-    expect(array_get_townhall_name).not_to be_nil
-  end
-  it "shouldn't be empty" do
-    expect(array_get_townhall_name).not_to be_empty
-  end
+describe "the get_townhall_urls method" do
+    it "should return an array" do
+        expect(get_townhall_urls.class).to eq(Array)
+    end
+    it "should return URLs" do
+        expect(get_townhall_urls[0].include?('html')).to eq(true)
+    end
+    it "should return more than 3 URLs" do
+        expect(get_townhall_urls.length > 3).to eq(true)
+    end
 end
