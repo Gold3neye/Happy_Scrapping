@@ -1,13 +1,10 @@
 require_relative '../lib/01_dark_Trader'
 
-describe "the crypto scrapper function" do
-  it "should be a hash" do
-    expect(dark_Trader).to be_instance_of(Hash)
+describe "Vérifier le nombre de résultats" do
+  it "au minimum 10" do
+    expect(get_crypto().count).to be > 10
   end
   it "should not be nil" do
-    expect(dark_Trader).not_to be_nil
-  end
-  it "should not be empty" do
-    expect(dark_Trader).not_to be_empty
+    expect(get_crypto).not_to be_nil
   end
 end
